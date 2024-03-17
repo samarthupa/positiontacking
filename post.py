@@ -12,10 +12,11 @@ def fetch_serp_data(api_key, cx, keyword, domain):
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
-        # Parse the data to find the ranking position of the domain
-        for index, item in enumerate(data.get('items', []), start=1):
-            if encoded_domain in item.get('link', ''):
-                return index
+        # Parse the data to find the top 10 search results
+        search_results = []
+        for item in data.get('items', [])[:10]:
+            search_results.append({'Title': item.get('title', ''), 'URL': item.get('link', '')})
+        return search_results
     return None
 
 # Streamlit app layout
@@ -43,13 +44,14 @@ def main():
             # Fetch SERP data for each keyword
             for keyword in keyword_list:
                 try:
-                    ranking_position = fetch_serp_data(api_key, cx, keyword, domain)
-                    if ranking_position is not None:
-                        results.append({'Keyword': keyword, 'Ranking Position': ranking_position})
+                    search_results = fetch_serp_data(api_key, cx, keyword, domain)
+                    if search_results is not None:
+                        for rank, result in enumerate(search_results, start=1):
+                            results.append({'Keyword': keyword, 'Rank': rank, 'Title': result['Title'], 'URL': result['URL']})
                     else:
-                        results.append({'Keyword': keyword, 'Ranking Position': 'Not found'})
+                        results.append({'Keyword': keyword, 'Rank': 'Not found', 'Title': 'Not found', 'URL': 'Not found'})
                 except Exception as e:
-                    results.append({'Keyword': keyword, 'Ranking Position': 'Error'})
+                    results.append({'Keyword': keyword, 'Rank': 'Error', 'Title': 'Error', 'URL': 'Error'})
 
             # Convert the list of dictionaries to a DataFrame
             results_df = pd.DataFrame(results)
