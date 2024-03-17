@@ -4,7 +4,7 @@ import pandas as pd
 
 # Function to fetch SERP data using the Custom Search JSON API
 def fetch_serp_data(api_key, cx, keyword, domain):
-    url = f"https://www.googleapis.com/customsearch/v1?key={api_key}&cx={cx}&q={keyword}"
+    url = f"https://www.googleapis.com/customsearch/v1?key={api_key}&cx={cx}&q={keyword}&gl=in&lr=lang_en"
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
