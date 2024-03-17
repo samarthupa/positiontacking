@@ -8,7 +8,7 @@ def fetch_serp_data(api_key, cx, keyword, domain):
     # Encode the domain to handle special characters
     encoded_domain = urllib.parse.quote(domain)
     # Construct the URL to request mobile search results
-    url = f"https://www.googleapis.com/customsearch/v1?key={api_key}&cx={cx}&q={keyword}&device=mobile"
+    url = f"https://www.googleapis.com/customsearch/v1?key={api_key}&cx={cx}&q={keyword}"
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
