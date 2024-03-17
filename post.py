@@ -8,9 +8,13 @@ def fetch_serp_data(api_key, cx, keyword, domain):
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
+        # Print the API response for debugging
+        print(f"API response for keyword '{keyword}': {data}")
         # Parse the data to find the ranking position of the domain
         for index, item in enumerate(data.get('items', []), start=1):
-            if domain.lower() in item.get('link', '').lower():
+            # Check if the domain appears in the link URL
+            link = item.get('link', '').lower()
+            if domain.lower() in link or domain.replace("www.", "").lower() in link:
                 return index
     return None
 
