@@ -7,20 +7,17 @@ import urllib.parse
 def fetch_serp_data(api_key, cx, keyword, domain):
     # Encode the domain to handle special characters
     encoded_domain = urllib.parse.quote(domain)
-    # Construct the URL to request search results for India with English language
-    url = f"https://www.googleapis.com/customsearch/v1?key={api_key}&cx={cx}&q={keyword}&cr=countryIN&lr=lang_en&gl=in&num=10"
+    # Construct the URL to request mobile search results
+    url = f"https://www.googleapis.com/customsearch/v1?key={api_key}&cx={cx}&q={keyword}&device=mobile"
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
-        # Parse the data to find the ranking position and URLs of the domain
-        results = []
-        for item in data.get('items', []):
-            position = item.get('rank', None)
-            link = item.get('link', '')
-            if domain in link:
-                results.append({'Position': position, 'URL': link})
-        return results
-    return []
+        # Parse the data to find the top 10 search results
+        search_results = []
+        for item in data.get('items', [])[:10]:
+            search_results.append({'Title': item.get('title', ''), 'URL': item.get('link', '')})
+        return search_results
+    return None
 
 # Streamlit app layout
 def main():
@@ -47,14 +44,14 @@ def main():
             # Fetch SERP data for each keyword
             for keyword in keyword_list:
                 try:
-                    ranking_positions = fetch_serp_data(api_key, cx, keyword, domain)
-                    if ranking_positions:
-                        for result in ranking_positions:
-                            results.append({'Keyword': keyword, 'Position': result.get('Position', 'Not found'), 'URL': result.get('URL', 'Not found')})
+                    search_results = fetch_serp_data(api_key, cx, keyword, domain)
+                    if search_results is not None:
+                        for rank, result in enumerate(search_results, start=1):
+                            results.append({'Keyword': keyword, 'Rank': rank, 'Title': result['Title'], 'URL': result['URL']})
                     else:
-                        results.append({'Keyword': keyword, 'Position': 'Not found', 'URL': 'Not found'})
+                        results.append({'Keyword': keyword, 'Rank': 'Not found', 'Title': 'Not found', 'URL': 'Not found'})
                 except Exception as e:
-                    results.append({'Keyword': keyword, 'Position': 'Error', 'URL': 'Error'})
+                    results.append({'Keyword': keyword, 'Rank': 'Error', 'Title': 'Error', 'URL': 'Error'})
 
             # Convert the list of dictionaries to a DataFrame
             results_df = pd.DataFrame(results)
