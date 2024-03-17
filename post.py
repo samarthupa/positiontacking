@@ -2,7 +2,7 @@ import requests
 import streamlit as st
 
 def fetch_google_search_results(api_key, cx, query):
-    url = f"https://www.googleapis.com/customsearch/v1?key={api_key}&cx={cx}&q={query}&cr=countryIN&lr=lang_en&device=desktop"
+    url = f"https://www.googleapis.com/customsearch/v1?key={api_key}&cx={cx}&q={query}&cr=countryIN"
     response = requests.get(url)
     if response.status_code == 200:
         search_results = response.json().get('items', [])
