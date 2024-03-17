@@ -33,13 +33,13 @@ def main():
             # Split keywords by line and remove empty lines
             keyword_list = [keyword.strip() for keyword in keywords.split('\n') if keyword.strip()]
 
-            # Create a DataFrame to store the results
+            # Initialize an empty DataFrame to store the results
             results_df = pd.DataFrame(columns=['Keyword', 'Ranking Position'])
 
             # Fetch SERP data for each keyword
             for keyword in keyword_list:
                 ranking_position = fetch_serp_data(api_key, cx, keyword, domain)
-                if ranking_position:
+                if ranking_position is not None:
                     results_df = results_df.append({'Keyword': keyword, 'Ranking Position': ranking_position}, ignore_index=True)
                 else:
                     results_df = results_df.append({'Keyword': keyword, 'Ranking Position': 'Not found'}, ignore_index=True)
