@@ -29,7 +29,7 @@ def main():
     keywords = st.text_area('Enter your keywords (one per line):')
 
     api_key = "AIzaSyCLrD3sJw3PiSkVjFtvsesI8tbS5uAu7xc"
-    cx = "67746a8fc42004079"
+    cx = "622c52b5ab94d4629"
 
     if st.button('Track Positions'):
         if not domain or not keywords:
