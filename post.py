@@ -1,5 +1,6 @@
 import requests
 import streamlit as st
+import pandas as pd
 
 # Function to fetch SERP data using the Custom Search JSON API
 def fetch_serp_data(api_key, cx, keyword, domain):
@@ -16,24 +17,35 @@ def fetch_serp_data(api_key, cx, keyword, domain):
 # Streamlit app layout
 def main():
     st.title('Google SERP Position Tracker')
-    st.write('Enter your domain and keyword to track its position in Google search results.')
+    st.write('Enter your domain and keywords to track their positions in Google search results.')
 
-    # Input fields for domain, keyword, and API key
+    # Input fields for domain and multiple keywords
     domain = st.text_input('Enter your domain:')
-    keyword = st.text_input('Enter your keyword:')
+    keywords = st.text_area('Enter your keywords (one per line):')
+
     api_key = "AIzaSyCLrD3sJw3PiSkVjFtvsesI8tbS5uAu7xc"
     cx = "67746a8fc42004079"
 
-    if st.button('Track Position'):
-        if not domain or not keyword:
-            st.error('Please fill in both domain and keyword.')
+    if st.button('Track Positions'):
+        if not domain or not keywords:
+            st.error('Please fill in both domain and keywords.')
         else:
-            # Call function to fetch SERP data
-            ranking_position = fetch_serp_data(api_key, cx, keyword, domain)
-            if ranking_position:
-                st.success(f'Your domain "{domain}" is ranking at position {ranking_position} for keyword "{keyword}".')
-            else:
-                st.error(f'Your domain "{domain}" is not found in the search results for keyword "{keyword}".')
+            # Split keywords by line and remove empty lines
+            keyword_list = [keyword.strip() for keyword in keywords.split('\n') if keyword.strip()]
+
+            # Create a DataFrame to store the results
+            results_df = pd.DataFrame(columns=['Keyword', 'Ranking Position'])
+
+            # Fetch SERP data for each keyword
+            for keyword in keyword_list:
+                ranking_position = fetch_serp_data(api_key, cx, keyword, domain)
+                if ranking_position:
+                    results_df = results_df.append({'Keyword': keyword, 'Ranking Position': ranking_position}, ignore_index=True)
+                else:
+                    results_df = results_df.append({'Keyword': keyword, 'Ranking Position': 'Not found'}, ignore_index=True)
+
+            # Display results in a table
+            st.write(results_df)
 
 if __name__ == '__main__':
     main()
