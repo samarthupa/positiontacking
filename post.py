@@ -10,7 +10,7 @@ def fetch_serp_data(api_key, cx, keyword, domain):
         data = response.json()
         # Parse the data to find the ranking position of the domain
         for index, item in enumerate(data.get('items', []), start=1):
-            if domain in item.get('link', ''):
+            if domain.lower() in item.get('link', '').lower():
                 return index
     return None
 
