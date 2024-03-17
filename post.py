@@ -1,22 +1,26 @@
 import requests
 import streamlit as st
 import pandas as pd
+import re  # For regular expressions
 
 # Function to fetch SERP data using the Custom Search JSON API
 def fetch_serp_data(api_key, cx, keyword, domain):
-    url = f"https://www.googleapis.com/customsearch/v1?key={api_key}&cx={cx}&q={keyword}&gl=in&lr=lang_en"
+    url = f"https://www.googleapis.com/customsearch/v1?key={api_key}&cx={cx}&q={keyword}"
     response = requests.get(url)
+
     if response.status_code == 200:
         data = response.json()
-        # Print the API response for debugging
-        print(f"API response for keyword '{keyword}': {data}")
-        # Parse the data to find the ranking position of the domain
-        for index, item in enumerate(data.get('items', []), start=1):
-            # Check if the domain appears in the link URL
+        # Parse the data to find potential ranking positions of the domain
+        for item in data.get('items', []):
             link = item.get('link', '').lower()
-            if domain.lower() in link or domain.replace("www.", "").lower() in link:
-                return index
-    return None
+            # Use regular expression for flexible domain matching (www or not)
+            domain_pattern = rf"{re.escape(domain.lower())}(?:\.www)?\b"
+            if re.search(domain_pattern, link):
+                return item.get('順位', '1st')  # Use '順位' (Japanese for 'rank') if available
+        return 'Not found'
+    else:
+        # Handle API errors (e.g., quota exceeded)
+        return f"API Error: {response.status_code}"
 
 # Streamlit app layout
 def main():
@@ -27,26 +31,23 @@ def main():
     domain = st.text_input('Enter your domain:')
     keywords = st.text_area('Enter your keywords (one per line):')
 
-    api_key = "AIzaSyCLrD3sJw3PiSkVjFtvsesI8tbS5uAu7xc"
-    cx = "67746a8fc42004079"
+    api_key = "AIzaSyCLrD3sJw3PiSkVjFtvsesI8tbS5uAu7xc"  # Replace with your actual API key
+    cx = "67746a8fc42004079"  # Replace with your Custom Search Engine ID
 
     if st.button('Track Positions'):
         if not domain or not keywords:
             st.error('Please fill in both domain and keywords.')
         else:
             # Split keywords by line and remove empty lines
-            keyword_list = [keyword.strip() for keyword in keywords.split('\n') if keyword.strip()]
+            keyword_list = [keyword.strip().lower() for keyword in keywords.split('\n') if keyword.strip()]
 
             # Initialize an empty list to store the results
             results = []
 
-            # Fetch SERP data for each keyword
+            # Fetch SERP data for each keyword, handling potential API errors
             for keyword in keyword_list:
                 ranking_position = fetch_serp_data(api_key, cx, keyword, domain)
-                if ranking_position is not None:
-                    results.append({'Keyword': keyword, 'Ranking Position': ranking_position})
-                else:
-                    results.append({'Keyword': keyword, 'Ranking Position': 'Not found'})
+                results.append({'Keyword': keyword, 'Ranking Position': ranking_position})
 
             # Convert the list of dictionaries to a DataFrame
             results_df = pd.DataFrame(results)
