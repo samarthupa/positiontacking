@@ -1,29 +1,39 @@
+import requests
 import streamlit as st
-from googlesearch import search
 
-def track_position(domain, keyword):
-    try:
-        position = 1
-        for url in search(keyword, num=10, pause=2):  # Limiting to 10 results per page
-            if domain in url:
-                return position
-            position += 1
-        return "Not found in the top 100 results"  # Assuming checking the first 100 results
-    except Exception as e:
-        return f"Error: {e}"
+# Function to fetch SERP data using the Custom Search JSON API
+def fetch_serp_data(api_key, cx, keyword, domain):
+    url = f"https://www.googleapis.com/customsearch/v1?key={api_key}&cx={cx}&q={keyword}"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        # Parse the data to find the ranking position of the domain
+        for index, item in enumerate(data.get('items', []), start=1):
+            if domain in item.get('link', ''):
+                return index
+    return None
 
+# Streamlit app layout
 def main():
-    st.title("Position Tracking Tool")
+    st.title('Google SERP Position Tracker')
+    st.write('Enter your domain and keyword to track its position in Google search results.')
 
-    domain = st.text_input("Enter your domain:")
-    keyword = st.text_input("Enter your keyword:")
+    # Input fields for domain, keyword, and API key
+    domain = st.text_input('Enter your domain:')
+    keyword = st.text_input('Enter your keyword:')
+    api_key = "AIzaSyCLrD3sJw3PiSkVjFtvsesI8tbS5uAu7xc"
+    cx = "67746a8fc42004079"
 
-    if st.button("Track Position"):
-        if domain and keyword:
-            position = track_position(domain, keyword)
-            st.write(f"The position of {domain} for the keyword '{keyword}' is: {position}")
+    if st.button('Track Position'):
+        if not domain or not keyword:
+            st.error('Please fill in both domain and keyword.')
         else:
-            st.warning("Please enter both a domain and a keyword.")
+            # Call function to fetch SERP data
+            ranking_position = fetch_serp_data(api_key, cx, keyword, domain)
+            if ranking_position:
+                st.success(f'Your domain "{domain}" is ranking at position {ranking_position} for keyword "{keyword}".')
+            else:
+                st.error(f'Your domain "{domain}" is not found in the search results for keyword "{keyword}".')
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
