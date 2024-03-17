@@ -3,10 +3,12 @@ from googlesearch import search
 
 def track_position(domain, keyword):
     try:
-        for i, url in enumerate(search(keyword, num=10, stop=10, pause=2)):
+        position = 1
+        for url in search(keyword, stop=100, pause=2):
             if domain in url:
-                return i + 1
-        return "Not found in the top 10 results"
+                return position
+            position += 1
+        return "Not found in the top 100 results"
     except Exception as e:
         return f"Error: {e}"
 
