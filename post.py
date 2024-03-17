@@ -1,40 +1,29 @@
-import requests
 import streamlit as st
+import requests
 
-def fetch_google_search_results(api_key, cx, query):
-    headers = {
-        "User-Agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
-    }
-    params = {
-        "key": api_key,
-        "cx": cx,
-        "q": query
-    }
-    url = "https://www.googleapis.com/customsearch/v1"
-    response = requests.get(url, headers=headers, params=params)
-    if response.status_code == 200:
-        search_results = response.json()
-        return search_results
-    else:
-        st.error("Failed to fetch search results. Please try again later.")
-        return None
+# Placeholders for your Programmable Search Engine credentials
+CX = "622c52b5ab94d4629"
+API_KEY = "AIzaSyCLrD3sJw3PiSkVjFtvsesI8tbS5uAu7xc"
 
-def main():
-    st.title("Google SERP Top 10 Results Finder")
+def fetch_results(keyword):
+    url = f"https://www.googleapis.com/customsearch/v1?key={API_KEY}&cx={CX}&q={keyword}"
+    response = requests.get(url)
 
-    api_key = st.text_input("Enter your Google Custom Search API Key:")
-    cx = st.text_input("Enter your Custom Search Engine ID (CX):")
-    keyword = st.text_input("Enter your keyword to search:")
+    try:
+        data = response.json()
+        results = data.get("items", [])[:10]  # Get top 10 results
 
-    if st.button("Search"):
-        if not api_key or not cx or not keyword:
-            st.warning("Please fill in all the fields.")
-        else:
-            search_results = fetch_google_search_results(api_key, cx, keyword)
-            if search_results:
-                # Remaining code to display search results...
-            else:
-                st.info("No results found for the given keyword.")
+        # Display results with position and link
+        st.write("**SERP Results for:**", keyword)
+        for i, result in enumerate(results):
+            st.write(f"**Position {i+1}:**\nhttps://en.cppreference.com/w/cpp/types/result_of}]({result['link']})")
+    except Exception as e:
+        st.error("An error occurred while fetching results:", e)
+        st.write("Please check your API credentials and internet connection.")
 
-if __name__ == "__main__":
-    main()
+# Streamlit app layout
+st.title("Google SERP Crawler")
+keyword = st.text_input("Enter Keyword")
+
+if st.button("Search"):
+    fetch_results(keyword)
