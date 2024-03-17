@@ -4,11 +4,11 @@ from googlesearch import search
 def track_position(domain, keyword):
     try:
         position = 1
-        for url in search(keyword, stop=100, pause=2):
+        for url in search(keyword, num=10, pause=2):  # Limiting to 10 results per page
             if domain in url:
                 return position
             position += 1
-        return "Not found in the top 100 results"
+        return "Not found in the top 100 results"  # Assuming checking the first 100 results
     except Exception as e:
         return f"Error: {e}"
 
