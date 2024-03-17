@@ -2,8 +2,8 @@ import streamlit as st
 import requests
 
 # Placeholders for your Programmable Search Engine credentials
-CX = "YOUR_PROGRAMMABLE_SEARCH_ENGINE_ID"
-API_KEY = "YOUR_API_KEY"
+CX = "622c52b5ab94d4629"
+API_KEY = "AIzaSyCLrD3sJw3PiSkVjFtvsesI8tbS5uAu7xc"
 
 def fetch_results(keyword):
     url = f"https://www.googleapis.com/customsearch/v1?key={API_KEY}&cx={CX}&q={keyword}"
